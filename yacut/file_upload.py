@@ -44,8 +44,9 @@ async def upload_file(file_storage):
         async with session.put(
             url=PUBLISH_URL,
             headers=AUTH_HEADERS,
-            params={'path': f'app:/{filename}'}:
-            pass
+            params={'path': f'app:/{filename}'}
+        ) as response_pub:
+           await response_pub.text()
 
         async with session.get(
             f'{API_HOST}{API_VERSION}/disk/resources',

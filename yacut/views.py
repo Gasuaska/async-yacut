@@ -19,16 +19,15 @@ def get_unique_short_id(str_length):
     return short_id
 
 
-@app.route('/', methods =('GET', 'POST'))
+@app.route('/', methods=('GET', 'POST'))
 def index_view():
-    form=URLMapForm()
+    form = URLMapForm()
     if not form.validate_on_submit():
         return render_template('index.html', form=form)
     if form.custom_id.data:
         if 'files' in form.custom_id.data:
             flash('Предложенный вариант короткой ссылки уже существует.')
-            return render_template('index.html',
-                           form=form)
+            return render_template('index.html', form=form)
         short_id = form.custom_id.data
     else:
         short_id = get_unique_short_id(SHORT_ID_LENGTH)
@@ -72,13 +71,14 @@ async def files_view():
     db.session.commit()
     return render_template('files.html', form=form, files_info=files_info)
 
+
 @app.route('/files/<string:short_id>', methods=('GET',))
 def file_view(short_id):
     url = URLMap.query.filter_by(short=short_id).first_or_404()
     return redirect(url.original)
 
 
-@app.route('/<string:short_id>', methods =('GET',))
+@app.route('/<string:short_id>', methods=('GET',))
 def short_link_view(short_id):
     url = URLMap.query.filter_by(short=short_id).first_or_404()
     return redirect(url.original)
