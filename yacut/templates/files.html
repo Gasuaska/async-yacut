@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}YaCut — загрузка файлов{% endblock %}
+
+{% block content %}
+<section class="container my-5 px-4">
+  <h1 class="text-center"><span style="color:red">Ya</span>Cut</h1>
+  <p class="text-center my-4">
+    Загрузите файлы и получите на них короткие ссылки
+  </p>
+
+  <div class="row my-3 justify-content-center">
+    <div class="col-sm-6">
+      <form method="POST" action="{{ url_for('files_view') }}" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-group mb-3">
+          {{ form.files(class="form-control form-control-lg py-2") }}
+        </div>
+        <div class="text-center">
+          {{ form.submit(class="btn btn-primary btn-lg") }}
+        </div>
+      </form>
+      <br>
+      {% if files_info %}
+        <table>
+          {% for file in files_info %}
+          <tr>
+            <td>{{ file.filename }}</td>
+            <td><a href="{{ file.short_link }}">{{ file.short_link }}</a></td>
+          </tr>
+          {% endfor %}
+        </table>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
