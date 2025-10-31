@@ -2,7 +2,7 @@ import os
 from random import choices
 from string import ascii_letters, digits
 
-from flask import flash, redirect, render_template
+from flask import flash, redirect, request, render_template
 
 from . import app, db
 from .forms import URLMapForm, FilesForm
@@ -40,9 +40,10 @@ def index_view():
     )
     db.session.add(urls)
     db.session.commit()
+    short_link=f'{request.host_url.rstrip("/")}/{short_id}'
     return render_template('index.html',
                            form=form,
-                           short_link=f'{BASE_URL}/{short_id}',)
+                           short_link=short_link,)
 
 
 @app.route('/files', methods=('GET', 'POST'))
@@ -50,6 +51,8 @@ async def files_view():
     form = FilesForm()
     if not form.validate_on_submit():
         return render_template('files.html', form=form)
+    if not form.files.data:
+        return render_template('files.html', form=form, files_info=files_info)
     uploaded_urls = await upload_files(form.files.data)
     files_info = []
     for i, file_storage in enumerate(form.files.data):
@@ -65,7 +68,8 @@ async def files_view():
 
         files_info.append({
             'filename': file_storage.filename,
-            'short_link': f'{BASE_URL}/files/{short_id}'
+            'short_link': f'{request.host_url.rstrip("/")}/{short_id}'
+
         })
 
     db.session.commit()

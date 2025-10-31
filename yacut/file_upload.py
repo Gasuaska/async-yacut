@@ -9,7 +9,7 @@ API_VERSION = 'v1'
 DISK_TOKEN = os.environ.get('DISK_TOKEN')
 AUTH_HEADERS = {'Authorization': f'OAuth {DISK_TOKEN}'}
 REQUEST_UPLOAD_URL = f'{API_HOST}{API_VERSION}/disk/resources/upload'
-DOWNLOAD_LINK_URL = f'{API_HOST}{API_VERSION}/disk/resources'
+DOWNLOAD_LINK_URL = f'{API_HOST}{API_VERSION}/disk/resources/download'
 PUBLISH_URL = f'{API_HOST}{API_VERSION}/disk/resources/publish'
 
 
@@ -32,31 +32,27 @@ async def upload_file(file_storage):
             upload_url = data.get('href')
             if not upload_url:
                 raise RuntimeError(
-                    f'Не удалось получить URL для загрузки: {data}')
+                    f'Не удалось получить URL для загрузки: {data}'
+                )
 
         async with aiofiles.open(temp_path, 'rb') as file:
             file_data = await file.read()
         async with session.put(upload_url, data=file_data) as response_put:
             if response_put.status not in (200, 201):
                 raise RuntimeError(
-                    f'Ошибка загрузки: {await response_put.text()}')
-
-        async with session.put(
-            url=PUBLISH_URL,
-            headers=AUTH_HEADERS,
-            params={'path': f'app:/{filename}'}
-        ) as response_pub:
-            await response_pub.text()
+                    f'Ошибка загрузки: {await response_put.text()}'
+                )
 
         async with session.get(
-            f'{API_HOST}{API_VERSION}/disk/resources',
+            url=f'{API_HOST}{API_VERSION}/disk/resources/download',
             headers=AUTH_HEADERS,
             params={'path': f'app:/{filename}'}
-        ) as response_info:
-            data = await response_info.json()
-            public_url = data.get('public_url')
+        ) as response_dl:
+            data = await response_dl.json()
+            public_url = data.get('href')
             if not public_url:
                 raise RuntimeError(f'Не удалось получить public_url: {data}')
+
     os.remove(temp_path)
     return public_url
 
