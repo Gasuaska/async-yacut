@@ -8,7 +8,7 @@ from .models import URLMap
 from .views import get_unique_short_id
 from .error_handlers import InvalidAPIUsage
 
-SHORT_ID_LENGTH = int(os.getenv('SHORT_ID_LENGTH', '1'))
+SHORT_ID_LENGTH = int(os.getenv('SHORT_ID_LENGTH', '6'))
 BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:5000')
 
 
@@ -28,7 +28,7 @@ def add_url():
             raise InvalidAPIUsage(
                 'Указано недопустимое имя для короткой ссылки', 400
             )
-        if len(custom_id) > SHORT_ID_LENGTH:
+        if len(custom_id) > 16:
             raise InvalidAPIUsage(
                 'Указано недопустимое имя для короткой ссылки', 400
             )
