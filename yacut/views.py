@@ -12,6 +12,7 @@ from .file_upload import upload_files
 BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:5000')
 SHORT_ID_LENGTH = int(os.getenv('SHORT_ID_LENGTH', '6'))
 
+
 def get_unique_short_id(str_length):
     letters_and_digits = ascii_letters + digits
     short_id = ''.join(choices(letters_and_digits, k=str_length))
