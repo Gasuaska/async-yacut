@@ -1,7 +1,6 @@
 import os
 from random import choices
 from string import ascii_letters, digits
-from dotenv import load_dotenv
 
 from flask import flash, redirect, render_template
 
@@ -22,7 +21,7 @@ def get_unique_short_id(str_length):
 
 @app.route('/', methods =('GET', 'POST'))
 def index_view():
-    form = URLMapForm()
+    form=URLMapForm()
     if not form.validate_on_submit():
         return render_template('index.html', form=form)
     if form.custom_id.data:

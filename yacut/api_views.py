@@ -11,6 +11,7 @@ from .error_handlers import InvalidAPIUsage
 SHORT_ID_LENGTH = int(os.getenv('SHORT_ID_LENGTH', '1'))
 BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:5000')
 
+
 @app.route('/api/id/', methods=('POST',))
 def add_url():
     if not request.is_json:

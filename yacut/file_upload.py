@@ -12,6 +12,7 @@ REQUEST_UPLOAD_URL = f'{API_HOST}{API_VERSION}/disk/resources/upload'
 DOWNLOAD_LINK_URL = f'{API_HOST}{API_VERSION}/disk/resources'
 PUBLISH_URL = f'{API_HOST}{API_VERSION}/disk/resources/publish'
 
+
 async def upload_file(file_storage):
     with tempfile.NamedTemporaryFile(
         delete=False,
@@ -43,9 +44,8 @@ async def upload_file(file_storage):
         async with session.put(
             url=PUBLISH_URL,
             headers=AUTH_HEADERS,
-            params={'path': f'app:/{filename}'}
-        ) as response_pub:
-           pass
+            params={'path': f'app:/{filename}'}:
+            pass
 
         async with session.get(
             f'{API_HOST}{API_VERSION}/disk/resources',
