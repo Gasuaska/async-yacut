@@ -1,22 +1,14 @@
 import os
-from random import choices
-from string import ascii_letters, digits
 
-from flask import flash, redirect, request, render_template
+from flask import flash, redirect, render_template, url_for
 
 from . import app, db
 from .forms import URLMapForm, FilesForm
 from .models import URLMap
-from .file_upload import upload_files
+from .constants import GENERATED_LINK_LENGTH
+from .utils import upload_files, get_unique_short_id, save_url_map
 
 BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:5000')
-SHORT_ID_LENGTH = int(os.getenv('SHORT_ID_LENGTH', '6'))
-
-
-def get_unique_short_id(str_length):
-    letters_and_digits = ascii_letters + digits
-    short_id = ''.join(choices(letters_and_digits, k=str_length))
-    return short_id
 
 
 @app.route('/', methods=('GET', 'POST'))
@@ -30,17 +22,17 @@ def index_view():
             return render_template('index.html', form=form)
         short_id = form.custom_id.data
     else:
-        short_id = get_unique_short_id(SHORT_ID_LENGTH)
+        short_id = get_unique_short_id(GENERATED_LINK_LENGTH)
         while URLMap.query.filter_by(short=short_id).first() is not None:
-            short_id = get_unique_short_id(SHORT_ID_LENGTH)
+            short_id = get_unique_short_id(GENERATED_LINK_LENGTH)
 
     urls = URLMap(
         original=form.original_link.data,
         short=short_id,
     )
-    db.session.add(urls)
-    db.session.commit()
-    short_link = f'{request.host_url.rstrip("/")}/{short_id}'
+    save_url_map(urls)
+    short_link = url_for(
+        'short_link_view', short_id=urls.short, _external=True)
     return render_template('index.html',
                            form=form,
                            short_link=short_link,)
@@ -55,23 +47,23 @@ async def files_view():
         return render_template('files.html', form=form)
     uploaded_urls = await upload_files(form.files.data)
     files_info = []
-    for i, file_storage in enumerate(form.files.data):
-        short_id = get_unique_short_id(SHORT_ID_LENGTH)
+    for file_index, file_storage in enumerate(form.files.data):
+        short_id = get_unique_short_id(GENERATED_LINK_LENGTH)
         while URLMap.query.filter_by(short=short_id).first() is not None:
-            short_id = get_unique_short_id(SHORT_ID_LENGTH)
+            short_id = get_unique_short_id(GENERATED_LINK_LENGTH)
 
         urls = URLMap(
-            original=uploaded_urls[i],
+            original=uploaded_urls[file_index],
             short=short_id
         )
         db.session.add(urls)
 
         files_info.append({
             'filename': file_storage.filename,
-            'short_link': f'{request.host_url.rstrip("/")}/{short_id}'
+            'short_link': url_for(
+                'file_view', short_id=urls.short, _external=True)
 
         })
-
     db.session.commit()
     return render_template('files.html', form=form, files_info=files_info)
 

@@ -10,7 +10,7 @@ from wtforms.validators import (
     ValidationError)
 
 from .models import URLMap
-
+from .constants import SHORT_LINK_MAX_LENGTH
 
 class URLMapForm(FlaskForm):
     original_link = URLField(
@@ -23,7 +23,8 @@ class URLMapForm(FlaskForm):
     custom_id = StringField(
         'Ваш вариант короткой ссылки',
         validators=(Optional(),
-                    Length(max=16, message='Максимум 16 символов!'),
+                    Length(max=SHORT_LINK_MAX_LENGTH,
+                           message='Максимум 16 символов!'),
                     Regexp('^[a-zA-Z0-9]*$',
                            message=('Для данного поля допустимо использование '
                                     'только латинских букв (верхнего и '
