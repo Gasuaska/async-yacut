@@ -36,7 +36,6 @@ def get_unique_short_id(str_length):
     return short_id
 
 
-
 async def upload_file(file_storage):
     with tempfile.NamedTemporaryFile(
         delete=False,
